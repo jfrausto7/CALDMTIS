@@ -1,1 +1,2 @@
 # CALDMTIS
+This research-oriented repository aims to conduct a practical evaluation of diverse latent diffusion models in generating images from text prompts. By employing CLIP scores—a reliable metric highly correlated with human judgment—we analyze and compare image quality, composition, and alignment with textual input. The CLIP score quantifies the cosine similarity between visual and textual CLIP embeddings, offering insights into image-caption correlation.
