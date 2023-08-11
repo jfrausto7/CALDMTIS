@@ -19,12 +19,16 @@ clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-pat
 if os.path.isfile("baseCLIPscores.npy"):
     baseCLIPscores = np.load("baseCLIPscores.npy") 
     refinedCLIPscores = np.load("refinedCLIPscores.npy") 
+    base0_9CLIPscores = np.load("base0_9CLIPscores.npy") 
+    refined0_9CLIPscores = np.load("refined0_9CLIPscores.npy") 
     one_fiveCLIPscores = np.load("one_fiveCLIPscores.npy")
     two_oneCLIPscores = np.load("two_oneCLIPscores.npy")
     prompts = np.load("prompts.npy")
 else:
     baseCLIPscores = np.array([])
     refinedCLIPscores = np.array([])
+    base0_9CLIPscores = np.array([])
+    refined0_9CLIPscores = np.array([])
     one_fiveCLIPscores = np.array([])
     two_oneCLIPscores = np.array([])
     prompts = np.array([])
@@ -41,7 +45,6 @@ for i in range(1):
     prompts = np.append(prompts, prompt)
 
     # Load diffusion models: base model, refiner model, and old model
-    # TODO: ADD SDXL 0.9b+r
     pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
     refiner = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-refiner-1.0",
@@ -51,6 +54,8 @@ for i in range(1):
         use_safetensors=True,
         variant="fp16",
     )
+    pipe0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-0.9", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
+    refiner0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-refiner-0.9", torch_dtype=torch.float16, use_safetensors=True, variant="fp16") 
     pipe1_5 = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
     pipe2_1 = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1", torch_dtype=torch.float16)
     pipe2_1.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
@@ -58,12 +63,16 @@ for i in range(1):
     # Enable model CPU offload for all models
     pipe.enable_model_cpu_offload()
     refiner.enable_model_cpu_offload()
+    pipe0_9.enable_model_cpu_offload()
+    refiner0_9.enable_model_cpu_offload()
     pipe1_5.enable_model_cpu_offload()
     pipe2_1.enable_model_cpu_offload()
 
     # Generate images for the given prompt
     image = pipe(prompt=prompt).images[0]
     imageRefined = refiner(prompt=prompt, image=image).images[0]
+    image0_9 = pipe0_9(prompt=prompt, image=image).images[0]
+    imageRefined0_9 = refiner0_9(prompt=prompt, image=image).images[0]
     image1_5 = pipe1_5(prompt=prompt).images[0]
     image2_1 = pipe2_1(prompt=prompt).images[0]
 
@@ -72,16 +81,22 @@ for i in range(1):
     os.mkdir(path)
     image.save(path + "/base.jpg")
     imageRefined.save(path + "/refined.jpg")
+    image0_9.save(path + "/base0_9.jpg")
+    imageRefined0_9.save(path + "/refined0_9.jpg")
     image1_5.save(path + "/1_5.jpg")
     image2_1.save(path + "/2_1.jpg")
 
     # Calculate and store CLIP scores for each image
     sd_clip_score = calculate_clip_score(np.array(image), prompt, clip_score_fn)
     sd_clip_score_REFINED = calculate_clip_score(np.array(imageRefined), prompt, clip_score_fn)
+    sd_clip_score_0_9 = calculate_clip_score(np.array(image0_9), prompt, clip_score_fn)
+    sd_clip_score_REFINED_0_9 = calculate_clip_score(np.array(imageRefined0_9), prompt, clip_score_fn)
     sd_clip_score_1_5 = calculate_clip_score(np.array(image1_5), prompt, clip_score_fn)
     sd_clip_score_2_1 = calculate_clip_score(np.array(image2_1), prompt, clip_score_fn)
     baseCLIPscores = np.append(baseCLIPscores, sd_clip_score)
     refinedCLIPscores = np.append(refinedCLIPscores, sd_clip_score_REFINED)
+    base0_9CLIPscores = np.append(base0_9CLIPscores, sd_clip_score_0_9)
+    refined0_9CLIPscores = np.append(refined0_9CLIPscores, sd_clip_score_REFINED_0_9)
     one_fiveCLIPscores = np.append(one_fiveCLIPscores, sd_clip_score_1_5)
     two_oneCLIPscores = np.append(two_oneCLIPscores, sd_clip_score_2_1)
     print("NIQE: " + str(calculate_niqe(image)))
@@ -92,6 +107,8 @@ for i in range(1):
     # Save scores to externally saved lists
     np.save('baseCLIPscores', baseCLIPscores)
     np.save('refinedCLIPscores', refinedCLIPscores)
+    np.save('base0_9CLIPscores', base0_9CLIPscores)
+    np.save('refined0_9CLIPscores', refined0_9CLIPscores)
     np.save('one_fiveCLIPscores', one_fiveCLIPscores)
     np.save('two_oneCLIPscores', two_oneCLIPscores)
     np.save("prompts", prompts)
@@ -99,8 +116,10 @@ for i in range(1):
 # Print CLIP scores and prompts
 print(f"CLIP scores base: {baseCLIPscores}")
 print(f"CLIP scores refined: {refinedCLIPscores}")
-print(f"CLIP scores 1_5: {one_fiveCLIPscores}")
-print(f"CLIP scores 2_1: {two_oneCLIPscores}")
+print(f"CLIP scores base 0.9: {base0_9CLIPscores}")
+print(f"CLIP scores refined 0.9: {refined0_9CLIPscores}")
+print(f"CLIP scores 1.5: {one_fiveCLIPscores}")
+print(f"CLIP scores 2.1: {two_oneCLIPscores}")
 print(f"Prompts: {prompts}")
-generate_violinplot(baseCLIPscores, refinedCLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
-generate_stripplot(baseCLIPscores, refinedCLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
+generate_violinplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
+generate_stripplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)

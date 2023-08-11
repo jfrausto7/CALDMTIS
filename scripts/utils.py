@@ -3,9 +3,9 @@ import numpy as np
 import seaborn as sns
 
 
-def generate_stripplot(base, refined, one_five, two_one):
-    data = np.concatenate((base, refined, one_five, two_one))
-    labels = ['SDXL 1.0 base'] * len(base) + ['SDXL 1.0 base+refiner'] * len(refined) + ['SD 1.5'] * len(one_five) + ['SD 2.1'] * len(two_one)
+def generate_stripplot(base, refined, base0_9, refined0_9, one_five, two_one):
+    data = np.concatenate((base, refined, base0_9, refined0_9, one_five, two_one))
+    labels = ['SDXL 1.0 base'] * len(base) + ['SDXL 1.0 base+refiner'] * len(refined) + ['SDXL 0.9 base'] * len(base0_9) + ['SDXL 0.9 base+refiner'] * len(refined0_9) + ['SD 1.5'] * len(one_five) + ['SD 2.1'] * len(two_one)
 
     plt.figure(figsize=(10, 6))
 
@@ -21,7 +21,7 @@ def generate_stripplot(base, refined, one_five, two_one):
 
 def generate_violinplot(base, refined, one_five, two_one):
     data = [base, refined, one_five, two_one]
-    labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SD 1.5", "SD 2.1"]
+    labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SDXL 0.9 base", "SDXL 0.9 base+refiner" "SD 1.5", "SD 2.1"]
 
     plt.figure(figsize=(10, 6))
 
