@@ -99,6 +99,7 @@ for i in range(1):
     refined0_9CLIPscores = np.append(refined0_9CLIPscores, sd_clip_score_REFINED_0_9)
     one_fiveCLIPscores = np.append(one_fiveCLIPscores, sd_clip_score_1_5)
     two_oneCLIPscores = np.append(two_oneCLIPscores, sd_clip_score_2_1)
+    # TODO: Configure metrics for all models
     print("NIQE: " + str(calculate_niqe(image)))
     print("BRISQUE: " + str(calculate_brisque(image)))
     print("TENG: " + str(calculate_teng(image)))
