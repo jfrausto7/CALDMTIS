@@ -48,25 +48,27 @@ def calculate_teng(image):
 
     return mean_teng
 
-# TODO: figure out how to configure for all images
-def calculate_gmsd(image1, image2):
-    image1 = np.array(image1, dtype=np.float32) / 255.0
-    image2 = np.array(image2, dtype=np.float32) / 255.0
+def calculate_gmsd(image_list):
+    num_images = len(image_list)
+    gmsd_scores = np.zeros((num_images, num_images))
 
-    # Calculate gradient maps using Sobel filters
-    gradient_x1 = cv2.Sobel(image1, cv2.CV_64F, 1, 0, ksize=3)
-    gradient_y1 = cv2.Sobel(image1, cv2.CV_64F, 0, 1, ksize=3)
-    gradient_x2 = cv2.Sobel(image2, cv2.CV_64F, 1, 0, ksize=3)
-    gradient_y2 = cv2.Sobel(image2, cv2.CV_64F, 0, 1, ksize=3)
+    for i in range(num_images):
+        for j in range(i + 1, num_images):
+            image1 = np.array(image_list[i], dtype=np.float32) / 255.0
+            image2 = np.array(image_list[j], dtype=np.float32) / 255.0
 
-    # Calculate gradient magnitudes
-    gradient_mag1 = np.sqrt(gradient_x1**2 + gradient_y1**2)
-    gradient_mag2 = np.sqrt(gradient_x2**2 + gradient_y2**2)
+            gradient_x1 = cv2.Sobel(image1, cv2.CV_64F, 1, 0, ksize=3)
+            gradient_y1 = cv2.Sobel(image1, cv2.CV_64F, 0, 1, ksize=3)
+            gradient_x2 = cv2.Sobel(image2, cv2.CV_64F, 1, 0, ksize=3)
+            gradient_y2 = cv2.Sobel(image2, cv2.CV_64F, 0, 1, ksize=3)
 
-    # Calculate mean squared error between gradient magnitudes
-    mse = np.mean((gradient_mag1 - gradient_mag2)**2)
+            gradient_mag1 = np.sqrt(gradient_x1**2 + gradient_y1**2)
+            gradient_mag2 = np.sqrt(gradient_x2**2 + gradient_y2**2)
 
-    # Calculate GMSD score
-    gmsd_score = 1.0 / (1.0 + mse)
+            mse = np.mean((gradient_mag1 - gradient_mag2)**2)
+            gmsd_score = 1.0 / (1.0 + mse)
 
-    return gmsd_score
+            gmsd_scores[i, j] = gmsd_score
+            gmsd_scores[j, i] = gmsd_score
+
+    return gmsd_scores

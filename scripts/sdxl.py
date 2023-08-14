@@ -1,4 +1,4 @@
-from config import API_KEY, IMAGE_DIR
+from config import API_KEY, IMAGE_DIR, ACCESS_TOKEN
 from metrics import calculate_clip_score, calculate_niqe, calculate_brisque, calculate_teng, calculate_gmsd
 from utils import generate_violinplot, generate_stripplot
 from diffusers import DiffusionPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
@@ -54,8 +54,8 @@ for i in range(1):
         use_safetensors=True,
         variant="fp16",
     )
-    pipe0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-0.9", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
-    refiner0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-refiner-0.9", torch_dtype=torch.float16, use_safetensors=True, variant="fp16") 
+    pipe0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-0.9", torch_dtype=torch.float16, variant="fp16", use_auth_token=ACCESS_TOKEN)
+    refiner0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-refiner-0.9", torch_dtype=torch.float16, variant="fp16", use_auth_token=ACCESS_TOKEN) 
     pipe1_5 = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
     pipe2_1 = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1", torch_dtype=torch.float16)
     pipe2_1.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
