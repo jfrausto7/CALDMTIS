@@ -16,7 +16,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
 
 # Initialize lists for storing scores and prompts
-if os.path.isfile("baseCLIPscores.npy"):
+if os.path.isfile("numpy/baseCLIPscores.npy"):
     baseCLIPscores = np.load("numpy/baseCLIPscores.npy") 
     refinedCLIPscores = np.load("numpy/refinedCLIPscores.npy") 
     base0_9CLIPscores = np.load("numpy/base0_9CLIPscores.npy") 
