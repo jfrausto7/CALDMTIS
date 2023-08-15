@@ -19,9 +19,9 @@ def generate_stripplot(base, refined, base0_9, refined0_9, one_five, two_one):
 
     plt.show()
 
-def generate_violinplot(base, refined, one_five, two_one):
-    data = [base, refined, one_five, two_one]
-    labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SDXL 0.9 base", "SDXL 0.9 base+refiner" "SD 1.5", "SD 2.1"]
+def generate_violinplot(base, refined, base0_9, refined0_9, one_five, two_one):
+    data = [base, refined, base0_9, refined0_9, one_five, two_one]
+    labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SDXL 0.9 base", "SDXL 0.9 base+refiner", "SD 1.5", "SD 2.1"]
 
     plt.figure(figsize=(10, 6))
 

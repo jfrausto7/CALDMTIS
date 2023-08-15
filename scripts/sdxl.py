@@ -71,8 +71,8 @@ for i in range(1):
     # Generate images for the given prompt
     image = pipe(prompt=prompt).images[0]
     imageRefined = refiner(prompt=prompt, image=image).images[0]
-    image0_9 = pipe0_9(prompt=prompt, image=image).images[0]
-    imageRefined0_9 = refiner0_9(prompt=prompt, image=image).images[0]
+    image0_9 = pipe0_9(prompt=prompt).images[0]
+    imageRefined0_9 = refiner0_9(prompt=prompt, image=image0_9).images[0]
     image1_5 = pipe1_5(prompt=prompt).images[0]
     image2_1 = pipe2_1(prompt=prompt).images[0]
 
@@ -87,6 +87,7 @@ for i in range(1):
     image2_1.save(path + "/2_1.jpg")
 
     # Calculate and store CLIP scores for each image
+    # TODO: Clean up this mess!
     sd_clip_score = calculate_clip_score(np.array(image), prompt, clip_score_fn)
     sd_clip_score_REFINED = calculate_clip_score(np.array(imageRefined), prompt, clip_score_fn)
     sd_clip_score_0_9 = calculate_clip_score(np.array(image0_9), prompt, clip_score_fn)
@@ -103,9 +104,12 @@ for i in range(1):
     print("NIQE: " + str(calculate_niqe(image)))
     print("BRISQUE: " + str(calculate_brisque(image)))
     print("TENG: " + str(calculate_teng(image)))
-    print("GMSD: " + str(calculate_gmsd(image, imageRefined)))
+    gmsd_matrix = calculate_gmsd([image, imageRefined, image0_9, imageRefined0_9, image1_5, image2_1])
+    print("GMSD: ")
+    print(gmsd_matrix)
 
     # Save scores to externally saved lists
+    # TODO: Save these somewhere neater
     np.save('baseCLIPscores', baseCLIPscores)
     np.save('refinedCLIPscores', refinedCLIPscores)
     np.save('base0_9CLIPscores', base0_9CLIPscores)

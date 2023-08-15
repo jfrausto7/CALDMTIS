@@ -57,10 +57,15 @@ def calculate_gmsd(image_list):
             image1 = np.array(image_list[i], dtype=np.float32) / 255.0
             image2 = np.array(image_list[j], dtype=np.float32) / 255.0
 
-            gradient_x1 = cv2.Sobel(image1, cv2.CV_64F, 1, 0, ksize=3)
-            gradient_y1 = cv2.Sobel(image1, cv2.CV_64F, 0, 1, ksize=3)
-            gradient_x2 = cv2.Sobel(image2, cv2.CV_64F, 1, 0, ksize=3)
-            gradient_y2 = cv2.Sobel(image2, cv2.CV_64F, 0, 1, ksize=3)
+            # Resize images to a common size
+            common_size = (min(image1.shape[0], image2.shape[0]), min(image1.shape[1], image2.shape[1]))
+            image1_resized = cv2.resize(image1, common_size)
+            image2_resized = cv2.resize(image2, common_size)
+
+            gradient_x1 = cv2.Sobel(image1_resized, cv2.CV_64F, 1, 0, ksize=3)
+            gradient_y1 = cv2.Sobel(image1_resized, cv2.CV_64F, 0, 1, ksize=3)
+            gradient_x2 = cv2.Sobel(image2_resized, cv2.CV_64F, 1, 0, ksize=3)
+            gradient_y2 = cv2.Sobel(image2_resized, cv2.CV_64F, 0, 1, ksize=3)
 
             gradient_mag1 = np.sqrt(gradient_x1**2 + gradient_y1**2)
             gradient_mag2 = np.sqrt(gradient_x2**2 + gradient_y2**2)
