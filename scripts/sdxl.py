@@ -17,13 +17,13 @@ clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-pat
 
 # Initialize lists for storing scores and prompts
 if os.path.isfile("baseCLIPscores.npy"):
-    baseCLIPscores = np.load("baseCLIPscores.npy") 
-    refinedCLIPscores = np.load("refinedCLIPscores.npy") 
-    base0_9CLIPscores = np.load("base0_9CLIPscores.npy") 
-    refined0_9CLIPscores = np.load("refined0_9CLIPscores.npy") 
-    one_fiveCLIPscores = np.load("one_fiveCLIPscores.npy")
-    two_oneCLIPscores = np.load("two_oneCLIPscores.npy")
-    prompts = np.load("prompts.npy")
+    baseCLIPscores = np.load("numpy/baseCLIPscores.npy") 
+    refinedCLIPscores = np.load("numpy/refinedCLIPscores.npy") 
+    base0_9CLIPscores = np.load("numpy/base0_9CLIPscores.npy") 
+    refined0_9CLIPscores = np.load("numpy/refined0_9CLIPscores.npy") 
+    one_fiveCLIPscores = np.load("numpy/one_fiveCLIPscores.npy")
+    two_oneCLIPscores = np.load("numpy/two_oneCLIPscores.npy")
+    prompts = np.load("numpy/prompts.npy")
 else:
     baseCLIPscores = np.array([])
     refinedCLIPscores = np.array([])
@@ -109,14 +109,13 @@ for i in range(1):
     print(gmsd_matrix)
 
     # Save scores to externally saved lists
-    # TODO: Save these somewhere neater
-    np.save('baseCLIPscores', baseCLIPscores)
-    np.save('refinedCLIPscores', refinedCLIPscores)
-    np.save('base0_9CLIPscores', base0_9CLIPscores)
-    np.save('refined0_9CLIPscores', refined0_9CLIPscores)
-    np.save('one_fiveCLIPscores', one_fiveCLIPscores)
-    np.save('two_oneCLIPscores', two_oneCLIPscores)
-    np.save("prompts", prompts)
+    np.save('numpy/baseCLIPscores', baseCLIPscores)
+    np.save('numpy/refinedCLIPscores', refinedCLIPscores)
+    np.save('numpy/base0_9CLIPscores', base0_9CLIPscores)
+    np.save('numpy/refined0_9CLIPscores', refined0_9CLIPscores)
+    np.save('numpy/one_fiveCLIPscores', one_fiveCLIPscores)
+    np.save('numpy/two_oneCLIPscores', two_oneCLIPscores)
+    np.save("numpy/prompts", prompts)
   
 # Print CLIP scores and prompts
 print(f"CLIP scores base: {baseCLIPscores}")
