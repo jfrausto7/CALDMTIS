@@ -15,22 +15,19 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # The model used is "openai/clip-vit-base-patch16"
 clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
 
+# Models names
+model_names = ["base1_0", "refined1_0", "base0_9", "refined0_9", "one_five", "two_one"]
+
 # Initialize lists for storing scores and prompts
-if os.path.isfile("numpy/baseCLIPscores.npy"):
-    baseCLIPscores = np.load("numpy/baseCLIPscores.npy") 
-    refinedCLIPscores = np.load("numpy/refinedCLIPscores.npy") 
-    base0_9CLIPscores = np.load("numpy/base0_9CLIPscores.npy") 
-    refined0_9CLIPscores = np.load("numpy/refined0_9CLIPscores.npy") 
-    one_fiveCLIPscores = np.load("numpy/one_fiveCLIPscores.npy")
-    two_oneCLIPscores = np.load("numpy/two_oneCLIPscores.npy")
+if len(os.listdir("numpy")) != 0:
+    CLIP_scores = []
+    for model in model_names:
+        CLIP_scores.append(np.load(f"numpy/{model}CLIPscores.npy"))
     prompts = np.load("numpy/prompts.npy")
 else:
-    baseCLIPscores = np.array([])
-    refinedCLIPscores = np.array([])
-    base0_9CLIPscores = np.array([])
-    refined0_9CLIPscores = np.array([])
-    one_fiveCLIPscores = np.array([])
-    two_oneCLIPscores = np.array([])
+    CLIP_scores = []
+    for model in model_names:
+        CLIP_scores.append(np.array([]))
     prompts = np.array([])
 
 for i in range(1):
@@ -44,8 +41,10 @@ for i in range(1):
     imageName = imageName.result
     prompts = np.append(prompts, prompt)
 
-    # Load diffusion models: base model, refiner model, and old model
+    # Load diffusion models: base models, refiner models, and old models
+    models = []
     pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
+    models.append(pipe)
     refiner = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-refiner-1.0",
         text_encoder_2=pipe.text_encoder_2,
@@ -54,76 +53,56 @@ for i in range(1):
         use_safetensors=True,
         variant="fp16",
     )
+    models.append(refiner)
     pipe0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-0.9", torch_dtype=torch.float16, variant="fp16", use_auth_token=ACCESS_TOKEN)
+    models.append(pipe0_9)
     refiner0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-refiner-0.9", torch_dtype=torch.float16, variant="fp16", use_auth_token=ACCESS_TOKEN) 
+    models.append(refiner0_9)
     pipe1_5 = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
+    models.append(pipe1_5)
     pipe2_1 = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1", torch_dtype=torch.float16)
+    models.append(pipe2_1)
     pipe2_1.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 
     # Enable model CPU offload for all models
-    pipe.enable_model_cpu_offload()
-    refiner.enable_model_cpu_offload()
-    pipe0_9.enable_model_cpu_offload()
-    refiner0_9.enable_model_cpu_offload()
-    pipe1_5.enable_model_cpu_offload()
-    pipe2_1.enable_model_cpu_offload()
+    for model in models:
+        model.enable_model_cpu_offload()
 
     # Generate images for the given prompt
-    image = pipe(prompt=prompt).images[0]
-    imageRefined = refiner(prompt=prompt, image=image).images[0]
-    image0_9 = pipe0_9(prompt=prompt).images[0]
-    imageRefined0_9 = refiner0_9(prompt=prompt, image=image0_9).images[0]
-    image1_5 = pipe1_5(prompt=prompt).images[0]
-    image2_1 = pipe2_1(prompt=prompt).images[0]
+    images = []
+    for i in range(len(models)):
+        if i == 1 or i == 3:
+            image = models[i](prompt=prompt, image=images[-1]).images[0]
+            images.append(image)
+        else:
+            image = models[i](prompt=prompt).images[0]
+            images.append(image)
 
     # Save the generated images
     path = os.path.join(IMAGE_DIR, imageName)
     os.mkdir(path)
-    image.save(path + "/base.jpg")
-    imageRefined.save(path + "/refined.jpg")
-    image0_9.save(path + "/base0_9.jpg")
-    imageRefined0_9.save(path + "/refined0_9.jpg")
-    image1_5.save(path + "/1_5.jpg")
-    image2_1.save(path + "/2_1.jpg")
+    for i in range(len(model_names)):
+        images[i].save(path + '/' + model_names[i] + ".jpg")
 
     # Calculate and store CLIP scores for each image
-    # TODO: Clean up this mess!
-    sd_clip_score = calculate_clip_score(np.array(image), prompt, clip_score_fn)
-    sd_clip_score_REFINED = calculate_clip_score(np.array(imageRefined), prompt, clip_score_fn)
-    sd_clip_score_0_9 = calculate_clip_score(np.array(image0_9), prompt, clip_score_fn)
-    sd_clip_score_REFINED_0_9 = calculate_clip_score(np.array(imageRefined0_9), prompt, clip_score_fn)
-    sd_clip_score_1_5 = calculate_clip_score(np.array(image1_5), prompt, clip_score_fn)
-    sd_clip_score_2_1 = calculate_clip_score(np.array(image2_1), prompt, clip_score_fn)
-    baseCLIPscores = np.append(baseCLIPscores, sd_clip_score)
-    refinedCLIPscores = np.append(refinedCLIPscores, sd_clip_score_REFINED)
-    base0_9CLIPscores = np.append(base0_9CLIPscores, sd_clip_score_0_9)
-    refined0_9CLIPscores = np.append(refined0_9CLIPscores, sd_clip_score_REFINED_0_9)
-    one_fiveCLIPscores = np.append(one_fiveCLIPscores, sd_clip_score_1_5)
-    two_oneCLIPscores = np.append(two_oneCLIPscores, sd_clip_score_2_1)
+    for i in range(len(images)):
+        CLIP_scores[i] = np.append(CLIP_scores[i], calculate_clip_score(np.array(images[i]), prompt, clip_score_fn))
     # TODO: Configure metrics for all models
-    print("NIQE: " + str(calculate_niqe(image)))
-    print("BRISQUE: " + str(calculate_brisque(image)))
-    print("TENG: " + str(calculate_teng(image)))
-    gmsd_matrix = calculate_gmsd([image, imageRefined, image0_9, imageRefined0_9, image1_5, image2_1])
+    # print("NIQE: " + str(calculate_niqe(image)))
+    # print("BRISQUE: " + str(calculate_brisque(image)))
+    # print("TENG: " + str(calculate_teng(image)))
+    gmsd_matrix = calculate_gmsd(images)
     print("GMSD: ")
     print(gmsd_matrix)
 
     # Save scores to externally saved lists
-    np.save('numpy/baseCLIPscores', baseCLIPscores)
-    np.save('numpy/refinedCLIPscores', refinedCLIPscores)
-    np.save('numpy/base0_9CLIPscores', base0_9CLIPscores)
-    np.save('numpy/refined0_9CLIPscores', refined0_9CLIPscores)
-    np.save('numpy/one_fiveCLIPscores', one_fiveCLIPscores)
-    np.save('numpy/two_oneCLIPscores', two_oneCLIPscores)
+    for i in range(len(model_names)):
+        np.save(f'numpy/{model_names[i]}CLIPscores', CLIP_scores[i])
     np.save("numpy/prompts", prompts)
   
 # Print CLIP scores and prompts
-print(f"CLIP scores base: {baseCLIPscores}")
-print(f"CLIP scores refined: {refinedCLIPscores}")
-print(f"CLIP scores base 0.9: {base0_9CLIPscores}")
-print(f"CLIP scores refined 0.9: {refined0_9CLIPscores}")
-print(f"CLIP scores 1.5: {one_fiveCLIPscores}")
-print(f"CLIP scores 2.1: {two_oneCLIPscores}")
+for clip in CLIP_scores:
+    print(f"CLIP: {clip}")
 print(f"Prompts: {prompts}")
-generate_violinplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
-generate_stripplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
+# generate_violinplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
+# generate_stripplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
