@@ -1,8 +1,9 @@
 from config import API_KEY, IMAGE_DIR, ACCESS_TOKEN
-from metrics import calculate_clip_score, calculate_niqe, calculate_brisque, calculate_teng, calculate_gmsd
+from metrics import calculate_clip_score, calculate_niqe, calculate_brisque, calculate_teng, calculate_gmsd, calculate_is
 from utils import generate_violinplot, generate_stripplot
 from diffusers import DiffusionPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
 from torchmetrics.functional.multimodal import clip_score
+from torchmetrics.image.inception import InceptionScore
 from functools import partial
 import torch
 import os
@@ -13,6 +14,9 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # Initialize partial function for calculating CLIP score
 # The model used is "openai/clip-vit-base-patch16"
 clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
+
+# Initialize Inception Score function
+inception_score_fn = InceptionScore()
 
 # Models names
 model_names = ["base1_0", "refined1_0", "base0_9", "refined0_9", "one_five", "two_one"]
@@ -91,12 +95,13 @@ for i in range(1):
     for i in range(len(model_names)):
         images[i].save(path + '/' + model_names[i] + ".jpg")
 
-    # Calculate and store CLIP scores for each image
+    # Calculate and store scores for each image
     for i in range(len(images)):
         CLIP_scores[i] = np.append(CLIP_scores[i], calculate_clip_score(np.array(images[i]), prompt, clip_score_fn))
         NIQE_scores[i] = np.append(NIQE_scores[i], calculate_niqe(images[i]))
         BRISQUE_scores[i] = np.append(NIQE_scores[i], calculate_brisque(images[i]))
         TENG_scores[i] = np.append(NIQE_scores[i], calculate_teng(images[i]))
+        calculate_is(images[i], inception_score_fn)
     GMSD_matrices = np.append(GMSD_matrices, calculate_gmsd(images))
 
     # Save scores to externally saved lists
