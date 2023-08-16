@@ -20,14 +20,22 @@ model_names = ["base1_0", "refined1_0", "base0_9", "refined0_9", "one_five", "tw
 
 # Initialize lists for storing scores and prompts
 if len(os.listdir("numpy")) != 0:
-    CLIP_scores = []
+    CLIP_scores, NIQE_scores, BRISQUE_scores, TENG_scores = [], [], [], []
     for model in model_names:
         CLIP_scores.append(np.load(f"numpy/{model}CLIPscores.npy"))
+        NIQE_scores.append(np.load(f"numpy/{model}NIQEscores.npy"))
+        BRISQUE_scores.append(np.load(f"numpy/{model}BRISQUEscores.npy"))
+        TENG_scores.append(np.load(f"numpy/{model}TENGscores.npy"))
+    GMSD_matrices = np.load(f"numpy/GMSDmatrices.npy")
     prompts = np.load("numpy/prompts.npy")
 else:
-    CLIP_scores = []
+    CLIP_scores, NIQE_scores, BRISQUE_scores, TENG_scores = [], [], [], []
     for model in model_names:
         CLIP_scores.append(np.array([]))
+        NIQE_scores.append(np.array([]))
+        BRISQUE_scores.append(np.array([]))
+        TENG_scores.append(np.array([]))
+    GMSD_matrices = np.array([])
     prompts = np.array([])
 
 for i in range(1):
@@ -87,22 +95,35 @@ for i in range(1):
     # Calculate and store CLIP scores for each image
     for i in range(len(images)):
         CLIP_scores[i] = np.append(CLIP_scores[i], calculate_clip_score(np.array(images[i]), prompt, clip_score_fn))
-    # TODO: Configure metrics for all models
-    # print("NIQE: " + str(calculate_niqe(image)))
-    # print("BRISQUE: " + str(calculate_brisque(image)))
-    # print("TENG: " + str(calculate_teng(image)))
-    gmsd_matrix = calculate_gmsd(images)
-    print("GMSD: ")
-    print(gmsd_matrix)
+        NIQE_scores[i] = np.append(NIQE_scores[i], calculate_niqe(images[i]))
+        BRISQUE_scores[i] = np.append(NIQE_scores[i], calculate_brisque(images[i]))
+        TENG_scores[i] = np.append(NIQE_scores[i], calculate_teng(images[i]))
+    GMSD_matrices = np.append(GMSD_matrices, calculate_gmsd(images))
 
     # Save scores to externally saved lists
     for i in range(len(model_names)):
         np.save(f'numpy/{model_names[i]}CLIPscores', CLIP_scores[i])
+        np.save(f'numpy/{model_names[i]}NIQEscores', NIQE_scores[i])
+        np.save(f'numpy/{model_names[i]}BRISQUEscores', BRISQUE_scores[i])
+        np.save(f'numpy/{model_names[i]}TENGscores', TENG_scores[i])
+    np.save(f"numpy/GMSDmatrices.npy", GMSD_matrices)
     np.save("numpy/prompts", prompts)
   
-# Print CLIP scores and prompts
-for clip in CLIP_scores:
-    print(f"CLIP: {clip}")
+# Print scores and prompts
+print(CLIP_scores)
+print(NIQE_scores)
+print(BRISQUE_scores)
+print(TENG_scores)
+# TODO: Visualize this matrix
+print(GMSD_matrices)
 print(f"Prompts: {prompts}")
-# generate_violinplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
-# generate_stripplot(baseCLIPscores, refinedCLIPscores, base0_9CLIPscores, refined0_9CLIPscores, one_fiveCLIPscores, two_oneCLIPscores)
+
+# Generate plots
+generate_violinplot(CLIP_scores, "CLIP")
+generate_stripplot(CLIP_scores, "CLIP")
+generate_violinplot(NIQE_scores, "NIQE")
+generate_stripplot(NIQE_scores, "NIQE")
+generate_violinplot(CLIP_scores, "BRISQUE")
+generate_stripplot(CLIP_scores, "BRISQUE")
+generate_violinplot(NIQE_scores, "TENG")
+generate_stripplot(NIQE_scores, "TENG")
