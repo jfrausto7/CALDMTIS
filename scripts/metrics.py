@@ -4,12 +4,43 @@ import numpy as np
 import imquality.brisque as brisque
 
 def calculate_clip_score(image, prompt, clip_score_fn):
+    """
+    Calculate the CLIP score for an image and a given prompt using a specified CLIP score function.
+
+    This function takes an image, a prompt, and a CLIP score function as inputs. The CLIP score function should
+    accept an image tensor and a list of prompts as arguments and return a CLIP score tensor. The function then
+    calculates the CLIP score for the provided image and prompt using the specified CLIP score function.
+    
+    https://arxiv.org/abs/2104.08718
+
+    Args:
+        image (numpy.ndarray): The input image as a NumPy array.
+        prompt (str): The prompt to be used for calculating the CLIP score.
+        clip_score_fn (Callable): The CLIP score function that accepts an image tensor and a list of prompts
+                                 and returns a CLIP score tensor.
+
+    Returns:
+        float: The calculated CLIP score rounded to four decimal places.
+    """
     clip_score = clip_score_fn(
         torch.from_numpy(image).unsqueeze(0).permute(0, 3, 1, 2), [prompt]
     ).detach()
     return round(float(clip_score), 4)
 
 def calculate_niqe(image):
+    """
+    Calculate the Naturalness Image Quality Evaluator (NIQE) score for a given image.
+
+    The NIQE score is calculated based on local mean and standard deviation statistics of the image.
+
+    https://live.ece.utexas.edu/research/quality/niqe_spl.pdf
+
+    Args:
+        image (numpy.ndarray): The input image as a NumPy array.
+
+    Returns:
+        float: The calculated NIQE score representing the image quality.
+    """
     # Calculate local mean and standard deviation
     image = np.array(image, dtype=np.float32) / 255.0
     window_size = 7
@@ -30,10 +61,40 @@ def calculate_niqe(image):
     return niqe_score
 
 def calculate_brisque(image):
+    """
+    Calculate the Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE) score for a given image.
+
+    The BRISQUE score quantifies the perceived quality of an image without requiring a reference image.
+
+    https://live.ece.utexas.edu/publications/2012/TIP%20BRISQUE.pdf
+
+    Args:
+        image (numpy.ndarray): The input image as a NumPy array.
+
+    Returns:
+        float: The calculated BRISQUE score representing the image quality.
+    """
     image = np.array(image, dtype=np.float32) / 255.0
     return brisque.score(image)
 
 def calculate_teng(image):
+    """
+    Calculate the Tenengrad focus measure of an input image.
+
+    The Tenengrad focus measure operator quantifies the sharpness of an image
+    based on the gradient magnitude. It measures the average squared gradient
+    magnitude of the image, which indicates the amount of detail and contrast
+    present. Higher values suggest greater focus and sharper edges.
+
+    https://arxiv.org/pdf/1903.02695.pdf
+
+    Args:
+        image (numpy.ndarray): The input image as a numpy array of dtype float32,
+                              with pixel values in the range [0, 1].
+
+    Returns:
+        float: The calculated mean Tenengrad focus measure value.
+    """
     image = np.array(image, dtype=np.float32) / 255.0
 
     # Calculate gradient in x and y directions
@@ -49,6 +110,19 @@ def calculate_teng(image):
     return mean_teng
 
 def calculate_gmsd(image_list):
+    """
+    Calculate the Gradient Magnitude Structural Dissimilarity (GMSD) scores for a list of images.
+
+    The GMSD score measures the structural dissimilarity between pairs of images based on gradient magnitudes.
+
+    https://arxiv.org/ftp/arxiv/papers/1308/1308.3052.pdf
+
+    Args:
+        image_list (list): A list of input images, each represented as a NumPy array.
+
+    Returns:
+        numpy.ndarray: A 2D array of GMSD scores for all pairs of images in the input list.
+    """
     num_images = len(image_list)
     gmsd_scores = np.zeros((num_images, num_images))
 

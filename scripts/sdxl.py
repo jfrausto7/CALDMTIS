@@ -11,7 +11,6 @@ import google.generativeai as palm
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # Initialize partial function for calculating CLIP score
-# https://arxiv.org/abs/2104.08718
 # The model used is "openai/clip-vit-base-patch16"
 clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
 

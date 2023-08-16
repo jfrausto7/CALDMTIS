@@ -4,6 +4,13 @@ import seaborn as sns
 
 
 def generate_stripplot(scores, metric):
+    """
+    Generate a strip plot to visualize the distribution of metric scores across models.
+
+    Args:
+        scores (list of arrays): Metric scores for different models.
+        metric (str): The name of the metric being visualized.
+    """
     data = np.concatenate(scores)
     length = len(scores[0])
     labels = ['SDXL 1.0 base'] * length + ['SDXL 1.0 base+refiner'] * length + ['SDXL 0.9 base'] * length + ['SDXL 0.9 base+refiner'] * length + ['SD 1.5'] * length + ['SD 2.1'] * length
@@ -21,6 +28,13 @@ def generate_stripplot(scores, metric):
     plt.show()
 
 def generate_violinplot(scores, metric):
+    """
+    Generate a violin plot to visualize the distribution of metric scores across models.
+
+    Args:
+        scores (list of arrays): Metric scores for different models.
+        metric (str): The name of the metric being visualized.
+    """
     data = scores
     labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SDXL 0.9 base", "SDXL 0.9 base+refiner", "SD 1.5", "SD 2.1"]
 
