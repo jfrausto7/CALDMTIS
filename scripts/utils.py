@@ -4,7 +4,7 @@ import seaborn as sns
 
 
 def generate_stripplot(scores, metric):
-    data = scores
+    data = np.concatenate(scores)
     length = len(scores[0])
     labels = ['SDXL 1.0 base'] * length + ['SDXL 1.0 base+refiner'] * length + ['SDXL 0.9 base'] * length + ['SDXL 0.9 base+refiner'] * length + ['SD 1.5'] * length + ['SD 2.1'] * length
 
