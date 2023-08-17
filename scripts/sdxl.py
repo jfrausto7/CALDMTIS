@@ -49,6 +49,7 @@ for i in range(1):
     prompts = np.append(prompts, prompt)
 
     # Load diffusion models: base models, refiner models, and old models
+    # TODO: Move this out of for loop
     models = []
     pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
     models.append(pipe)
@@ -97,7 +98,7 @@ for i in range(1):
         NIQE_scores[i] = np.append(NIQE_scores[i], calculate_niqe(images[i]))
         BRISQUE_scores[i] = np.append(NIQE_scores[i], calculate_brisque(images[i]))
         TENG_scores[i] = np.append(NIQE_scores[i], calculate_teng(images[i]))
-    GMSD_matrices = np.concatenate((GMSD_matrices, [calculate_gmsd(images)]), axis=0)
+    GMSD_matrices = np.concatenate((GMSD_matrices, [calculate_gmsd(images)]), axis=0) if GMSD_matrices.size else np.array([calculate_gmsd(images)])
 
     # Save scores to externally saved lists
     for i in range(len(model_names)):

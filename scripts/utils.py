@@ -81,6 +81,7 @@ def generate_heatmap(matrix_list, cmap='viridis'):
     plt.imshow(averaged_matrix, cmap=cmap, origin='lower', aspect='auto')
     plt.colorbar(label='Averaged GMSD Value')
     plt.title('Averaged GMSD Matrix')
+    # TODO: Change labels & ticks
     plt.xlabel(labels)
     plt.ylabel(labels)
     plt.show()
