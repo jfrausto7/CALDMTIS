@@ -1,9 +1,10 @@
 import cv2
 import torch
-import torchvision.transforms as transforms
-from torchmetrics.image.inception import InceptionScore
+import matplotlib.pyplot as plt
 import numpy as np
 import imquality.brisque as brisque
+
+from utils import generate_stripplot, generate_violinplot
 
 def calculate_clip_score(image, prompt, clip_score_fn):
     """
@@ -153,3 +154,55 @@ def calculate_gmsd(image_list):
             gmsd_scores[j, i] = gmsd_score
 
     return gmsd_scores
+
+def aggregate_scores(metrics, model_names):
+    """
+    Aggregate metric scores for each model using weighted averaging.
+
+    Args:
+        metrics (tuple): Tuple of lists containing metric scores (CLIP, NIQE, BRISQUE, TENG) for each model.
+        model_names (list): List of model names.
+
+    Returns:
+        list: A list of aggregate scores for each model.
+    """
+    # Unpack the metrics tuple
+    CLIP_scores, NIQE_scores, BRISQUE_scores, TENG_scores = metrics
+
+    # Define metric weights (adjust these based on your preferences)
+    metric_weights = [0.5, 0.2, 0.2, 0.1]  # Example weights for CLIP, NIQE, BRISQUE, TENG
+
+    # Initialize lists for storing weighted scores
+    weighted_scores = [[] for _ in range(len(model_names))]
+
+    # Calculate and store weighted scores for each model and metric
+    for i in range(len(model_names)):
+        for j in range(len(CLIP_scores[0])):
+            weighted_score = (
+                CLIP_scores[i][j] * metric_weights[0] +
+                NIQE_scores[i][j] * metric_weights[1] +
+                BRISQUE_scores[i][j] * metric_weights[2] +
+                TENG_scores[i][j] * metric_weights[3]
+            )
+            weighted_scores[i].append(weighted_score)
+
+    # Calculate aggregated scores for each model
+    aggregated_scores = [np.mean(scores) for scores in weighted_scores]
+
+    # Print aggregated scores
+    for i, model in enumerate(model_names):
+        print(f"Aggregate score for {model}: {aggregated_scores[i]}")
+
+    # Visualize with a bar plot
+    # Create a bar plot
+    plt.figure(figsize=(10, 6))
+    plt.bar(model_names, aggregated_scores)
+    plt.xlabel('Model')
+    plt.ylabel('Aggregate Score')
+    plt.title('Aggregate Scores for Different Models')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    return aggregated_scores
+    
