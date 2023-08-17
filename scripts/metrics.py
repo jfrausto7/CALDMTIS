@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import imquality.brisque as brisque
 
-from utils import generate_stripplot, generate_violinplot
-
 def calculate_clip_score(image, prompt, clip_score_fn):
     """
     Calculate the CLIP score for an image and a given prompt using a specified CLIP score function.
