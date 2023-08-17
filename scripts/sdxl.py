@@ -118,6 +118,7 @@ print(f"Prompts: {prompts}")
 
 # Generate plots
 # TODO: Save plots
+# TODO: Metric Correlation Analysis
 generate_violinplot(CLIP_scores, "CLIP")
 generate_stripplot(CLIP_scores, "CLIP")
 generate_violinplot(NIQE_scores, "NIQE")
