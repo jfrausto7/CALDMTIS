@@ -74,14 +74,48 @@ def generate_heatmap(matrix_list, cmap='viridis'):
     # Average all matrices
     averaged_matrix = np.mean(matrix_list, axis=0)
 
-    labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SDXL 0.9 base", "SDXL 0.9 base+refiner", "SD 1.5", "SD 2.1"]
+    labels = ["SDXL 1.0 b", "SDXL 1.0 b+r", "SDXL 0.9 b", "SDXL 0.9 b+r", "SD 1.5", "SD 2.1"]
 
     # Generate heatmap visualization
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(10, 8))
     plt.imshow(averaged_matrix, cmap=cmap, origin='lower', aspect='auto')
     plt.colorbar(label='Averaged GMSD Value')
     plt.title('Averaged GMSD Matrix')
     # TODO: Change labels & ticks
-    plt.xlabel(labels)
-    plt.ylabel(labels)
+    plt.xlabel("Model")
+    plt.ylabel("Model")
+    plt.xticks(ticks=[0,1,2,3,4,5], labels=labels)
+    plt.yticks(ticks=[0,1,2,3,4,5], labels=labels)
+    plt.show()
+
+
+def generate_correlation_matrix(metric_scores, model_names, cmap='coolwarm'):
+    """
+    Generate a heatmap to visualize the average correlation matrix between metrics for different models and scenarios.
+
+    Args:
+        metric_scores (numpy.ndarray): A 3D numpy array containing metric scores for different metrics, models, and scenarios.
+                                      Shape: (num_metrics, num_models, num_scenarios)
+        model_names (list): List of model names corresponding to the models' dimension of the metric_scores array.
+        cmap (str, optional): Colormap for the heatmap. Default is 'coolwarm'.
+
+    Returns:
+        None
+    """
+    num_metrics, num_models, num_scenarios = metric_scores.shape
+    print(metric_scores.shape)
+
+    # Calculate the average correlation matrix across all scenarios
+    avg_correlation_matrix = np.mean([np.corrcoef(metric_scores[:, :, i], rowvar=False) for i in range(num_scenarios)], axis=0)
+    
+    # Initialize a figure for the heatmap
+    plt.figure(figsize=(10, 8))
+
+    # Plot the heatmap
+    sns.heatmap(avg_correlation_matrix, annot=True, cmap=cmap, xticklabels=model_names, yticklabels=model_names)
+    plt.title("Average Correlation of Metrics Heatmap")
+    plt.xlabel("Model")
+    plt.ylabel("Model")
+
+    plt.tight_layout()
     plt.show()
