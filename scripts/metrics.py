@@ -1,5 +1,6 @@
 import cv2
 import torch
+import torchvision.transforms as transforms
 from torchmetrics.image.inception import InceptionScore
 import numpy as np
 import imquality.brisque as brisque
@@ -152,10 +153,3 @@ def calculate_gmsd(image_list):
             gmsd_scores[j, i] = gmsd_score
 
     return gmsd_scores
-
-def calculate_is(image, inception_score_func):
-    IS = InceptionScore()
-    IS.update(image)
-    print("Local IS: " + str(IS.compute()))
-    inception_score_func.update(image)
-    print("Global IS: " + str(inception_score_func.compute()))

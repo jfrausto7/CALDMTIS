@@ -1,9 +1,8 @@
 from config import API_KEY, IMAGE_DIR, ACCESS_TOKEN
-from metrics import calculate_clip_score, calculate_niqe, calculate_brisque, calculate_teng, calculate_gmsd, calculate_is
-from utils import generate_violinplot, generate_stripplot
+from metrics import calculate_clip_score, calculate_niqe, calculate_brisque, calculate_teng, calculate_gmsd
+from utils import generate_violinplot, generate_stripplot, generate_heatmap
 from diffusers import DiffusionPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
 from torchmetrics.functional.multimodal import clip_score
-from torchmetrics.image.inception import InceptionScore
 from functools import partial
 import torch
 import os
@@ -14,9 +13,6 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # Initialize partial function for calculating CLIP score
 # The model used is "openai/clip-vit-base-patch16"
 clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
-
-# Initialize Inception Score function
-inception_score_fn = InceptionScore()
 
 # Models names
 model_names = ["base1_0", "refined1_0", "base0_9", "refined0_9", "one_five", "two_one"]
@@ -101,8 +97,7 @@ for i in range(1):
         NIQE_scores[i] = np.append(NIQE_scores[i], calculate_niqe(images[i]))
         BRISQUE_scores[i] = np.append(NIQE_scores[i], calculate_brisque(images[i]))
         TENG_scores[i] = np.append(NIQE_scores[i], calculate_teng(images[i]))
-        calculate_is(images[i], inception_score_fn)
-    GMSD_matrices = np.append(GMSD_matrices, calculate_gmsd(images))
+    GMSD_matrices = np.concatenate((GMSD_matrices, [calculate_gmsd(images)]), axis=0)
 
     # Save scores to externally saved lists
     for i in range(len(model_names)):
@@ -118,11 +113,11 @@ print(CLIP_scores)
 print(NIQE_scores)
 print(BRISQUE_scores)
 print(TENG_scores)
-# TODO: Visualize this matrix
 print(GMSD_matrices)
 print(f"Prompts: {prompts}")
 
 # Generate plots
+# TODO: Save plots
 generate_violinplot(CLIP_scores, "CLIP")
 generate_stripplot(CLIP_scores, "CLIP")
 generate_violinplot(NIQE_scores, "NIQE")
@@ -131,3 +126,4 @@ generate_violinplot(CLIP_scores, "BRISQUE")
 generate_stripplot(CLIP_scores, "BRISQUE")
 generate_violinplot(NIQE_scores, "TENG")
 generate_stripplot(NIQE_scores, "TENG")
+generate_heatmap(GMSD_matrices)
