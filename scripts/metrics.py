@@ -200,6 +200,7 @@ def aggregate_scores(metrics, model_names):
     plt.title('Aggregate Scores for Different Models')
     plt.xticks(rotation=45)
     plt.tight_layout()
+    plt.savefig('figures/aggregate_metric.png')
     plt.show()
 
     return aggregated_scores

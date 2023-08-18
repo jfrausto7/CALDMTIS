@@ -25,6 +25,8 @@ def generate_stripplot(scores, metric):
 
     plt.tight_layout()
 
+    plt.savefig(f'figures/{metric}_stripplot.png')
+
     plt.show()
 
 def generate_violinplot(scores, metric):
@@ -48,6 +50,8 @@ def generate_violinplot(scores, metric):
     plt.title(f'Violin Plot of {metric} Scores')
 
     plt.tight_layout()
+
+    plt.savefig(f'figures/{metric}_violinplot.png')
 
     plt.show()
 
@@ -85,6 +89,7 @@ def generate_heatmap(matrix_list, cmap='viridis'):
     plt.ylabel("Model")
     plt.xticks(ticks=np.arange(len(labels)), labels=labels)
     plt.yticks(ticks=np.arange(len(labels)), labels=labels)
+    plt.savefig('figures/GMSD_heatmap.png')
     plt.show()
 
 
@@ -102,7 +107,6 @@ def generate_correlation_matrix(metric_scores, model_names, cmap='coolwarm'):
         None
     """
     num_metrics, num_models, num_scenarios = metric_scores.shape
-    print(metric_scores.shape)
 
     # Calculate the average correlation matrix across all scenarios
     avg_correlation_matrix = np.mean([np.corrcoef(metric_scores[:, :, i], rowvar=False) for i in range(num_scenarios)], axis=0)
@@ -117,4 +121,5 @@ def generate_correlation_matrix(metric_scores, model_names, cmap='coolwarm'):
     plt.ylabel("Model")
 
     plt.tight_layout()
+    plt.savefig('figures/metric_correlation.png')
     plt.show()

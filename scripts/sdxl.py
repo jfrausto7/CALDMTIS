@@ -118,7 +118,6 @@ print(GMSD_matrices)
 print(f"Prompts: {prompts}")
 
 # Generate plots
-# TODO: Save plots
 metric_scores = np.array([CLIP_scores, NIQE_scores, BRISQUE_scores, TENG_scores])
 generate_violinplot(CLIP_scores, "CLIP")
 generate_stripplot(CLIP_scores, "CLIP")
