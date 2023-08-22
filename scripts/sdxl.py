@@ -70,6 +70,7 @@ for i in range(1):
     palm.configure(api_key=API_KEY)
     prompt = palm.generate_text(prompt="In less than 77 words, come up with an incredibly in-depth, random, and unique prompt for a text-to-image model. Make sure you haven't generated it before; it needs to be completely original.")
     print("PROMPT: " + prompt.result)
+    # TODO: check dirs to make sure name doesn't already exist
     imageName = palm.generate_text(prompt="Given the following text-to-image prompt, come up with a short one-word name for its associated image file: " + prompt.result)
     print("FILE NAME: " + imageName.result)
     prompt = prompt.result
