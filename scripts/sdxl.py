@@ -65,13 +65,16 @@ pipe2_1.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.confi
 for model in models:
     model.enable_model_cpu_offload()
 
-for i in range(1):
+for i in range(5):
     # Configure PaLM; generate prompts & image names
     palm.configure(api_key=API_KEY)
     prompt = palm.generate_text(prompt="In less than 77 words, come up with an incredibly in-depth, random, and unique prompt for a text-to-image model. Make sure you haven't generated it before; it needs to be completely original.")
     print("PROMPT: " + prompt.result)
-    # TODO: check dirs to make sure name doesn't already exist
     imageName = palm.generate_text(prompt="Given the following text-to-image prompt, come up with a short one-word name for its associated image file: " + prompt.result)
+    path = os.path.join(IMAGE_DIR, imageName.result)
+    while os.path.exists(path):
+        imageName = palm.generate_text(prompt=f"Given the following text-to-image prompt, come up with a short one-word name for its associated image file. Do not use {imageName}. " + prompt.result)
+        path = os.path.join(IMAGE_DIR, imageName.result)
     print("FILE NAME: " + imageName.result)
     prompt = prompt.result
     imageName = imageName.result
@@ -88,7 +91,6 @@ for i in range(1):
             images.append(image)
 
     # Save the generated images
-    path = os.path.join(IMAGE_DIR, imageName)
     os.mkdir(path)
     for i in range(len(model_names)):
         images[i].save(path + '/' + model_names[i] + ".jpg")
