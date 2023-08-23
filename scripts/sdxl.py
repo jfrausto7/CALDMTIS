@@ -68,7 +68,7 @@ for model in models:
 for i in range(5):
     # Configure PaLM; generate prompts & image names
     palm.configure(api_key=API_KEY)
-    prompt = palm.generate_text(prompt="In less than 77 words, come up with an incredibly in-depth, random, and unique prompt for a text-to-image model. Make sure you haven't generated it before; it needs to be completely original.")
+    prompt = palm.generate_text(prompt="In less than 77 words, generate a unique and diverse prompt that would inspire a text-to-image diffusion model to produce a visually captivating and intriguing image. Consider a range of themes, emotions, and settings to ensure the generated images are rich and appealing.")
     print("PROMPT: " + prompt.result)
     imageName = palm.generate_text(prompt="Given the following text-to-image prompt, come up with a short one-word name for its associated image file: " + prompt.result)
     path = os.path.join(IMAGE_DIR, imageName.result)
