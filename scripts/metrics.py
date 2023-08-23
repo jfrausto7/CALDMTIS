@@ -11,6 +11,8 @@ def calculate_clip_score(image, prompt, clip_score_fn):
     This function takes an image, a prompt, and a CLIP score function as inputs. The CLIP score function should
     accept an image tensor and a list of prompts as arguments and return a CLIP score tensor. The function then
     calculates the CLIP score for the provided image and prompt using the specified CLIP score function.
+
+    Low score = less similarity to caption; High score = high similarity to caption
     
     https://arxiv.org/abs/2104.08718
 
@@ -33,6 +35,8 @@ def calculate_niqe(image):
     Calculate the Naturalness Image Quality Evaluator (NIQE) score for a given image.
 
     The NIQE score is calculated based on local mean and standard deviation statistics of the image.
+
+    Low score = higher quality; High score = more distortion, noise, artifacts, etc.
 
     https://live.ece.utexas.edu/research/quality/niqe_spl.pdf
 
@@ -67,6 +71,9 @@ def calculate_brisque(image):
 
     The BRISQUE score quantifies the perceived quality of an image without requiring a reference image.
 
+    Low score = higher quality; High score = more distortion, noise, artifacts, etc.
+
+
     https://live.ece.utexas.edu/publications/2012/TIP%20BRISQUE.pdf
 
     Args:
@@ -86,6 +93,9 @@ def calculate_teng(image):
     based on the gradient magnitude. It measures the average squared gradient
     magnitude of the image, which indicates the amount of detail and contrast
     present. Higher values suggest greater focus and sharper edges.
+
+    Low score = few high-frequency details, less well-defined edges; High score = more high-frequency details/edges.
+
 
     https://arxiv.org/pdf/1903.02695.pdf
 
@@ -153,6 +163,21 @@ def calculate_gmsd(image_list):
 
     return gmsd_scores
 
+def normalize_metric(scores):
+    """
+    Normalize metric scores using Min-Max Scaling.
+
+    Args:
+        scores (list): List of metric scores for each model.
+
+    Returns:
+        list: Normalized metric scores for each model.
+    """
+    min_score = np.min(scores)
+    max_score = np.max(scores)
+    normalized_scores = [(score - min_score) / (max_score - min_score) for score in scores]
+    return normalized_scores
+
 def aggregate_scores(metrics, model_names):
     """
     Aggregate metric scores for each model using weighted averaging.
@@ -168,19 +193,25 @@ def aggregate_scores(metrics, model_names):
     CLIP_scores, NIQE_scores, BRISQUE_scores, TENG_scores = metrics
 
     # Define metric weights (adjust these based on your preferences)
-    metric_weights = [0.5, 0.2, 0.2, 0.1]  # Example weights for CLIP, NIQE, BRISQUE, TENG
+    metric_weights = [0.8, -0.01, -0.04, -0.15]  # negative weights = inverse relationship
+
+    # Normalize each metric
+    CLIP_normalized = normalize_metric(CLIP_scores)
+    NIQE_normalized = normalize_metric(NIQE_scores)
+    BRISQUE_normalized = normalize_metric(BRISQUE_scores)
+    TENG_normalized = normalize_metric(TENG_scores)
 
     # Initialize lists for storing weighted scores
     weighted_scores = [[] for _ in range(len(model_names))]
 
     # Calculate and store weighted scores for each model and metric
     for i in range(len(model_names)):
-        for j in range(len(CLIP_scores[0])):
+        for j in range(len(CLIP_normalized[0])):
             weighted_score = (
-                CLIP_scores[i][j] * metric_weights[0] +
-                NIQE_scores[i][j] * metric_weights[1] +
-                BRISQUE_scores[i][j] * metric_weights[2] +
-                TENG_scores[i][j] * metric_weights[3]
+                CLIP_normalized[i][j] * metric_weights[0] +
+                NIQE_normalized[i][j] * metric_weights[1] +
+                BRISQUE_normalized[i][j] * metric_weights[2] +
+                TENG_normalized[i][j] * metric_weights[3]
             )
             weighted_scores[i].append(weighted_score)
 
@@ -204,4 +235,3 @@ def aggregate_scores(metrics, model_names):
     plt.show()
 
     return aggregated_scores
-    
