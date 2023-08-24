@@ -15,7 +15,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
 
 # Models names
-model_names = ["base1_0", "refined1_0", "base0_9", "refined0_9", "one_five", "two_one"]
+model_names = ["base1_0", "refined1_0", "base0_9", "refined0_9", "two_one", "one_five"]
 
 # Initialize lists for storing scores and prompts
 if len(os.listdir("numpy")) != 0:
@@ -55,11 +55,11 @@ pipe0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-bas
 models.append(pipe0_9)
 refiner0_9 = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-refiner-0.9", torch_dtype=torch.float16, variant="fp16", use_auth_token=ACCESS_TOKEN) 
 models.append(refiner0_9)
-pipe1_5 = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
-models.append(pipe1_5)
 pipe2_1 = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1", torch_dtype=torch.float16)
 models.append(pipe2_1)
 pipe2_1.scheduler = DPMSolverMultistepScheduler.from_config(pipe2_1.scheduler.config)
+pipe1_5 = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
+models.append(pipe1_5)
 
 # Enable model CPU offload for all models
 for model in models:

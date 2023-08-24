@@ -12,7 +12,7 @@ def generate_stripplot(scores, metric):
     """
     data = np.concatenate(scores)
     length = len(scores[0])
-    labels = ['SDXL 1.0 base'] * length + ['SDXL 1.0 base+refiner'] * length + ['SDXL 0.9 base'] * length + ['SDXL 0.9 base+refiner'] * length + ['SD 1.5'] * length + ['SD 2.1'] * length
+    labels = ['SDXL 1.0 base'] * length + ['SDXL 1.0 base+refiner'] * length + ['SDXL 0.9 base'] * length + ['SDXL 0.9 base+refiner'] * length + ['SD 2.1'] * length + ['SD 1.5'] * length
 
     plt.figure(figsize=(10, 6))
 
@@ -37,7 +37,7 @@ def generate_violinplot(scores, metric):
         metric (str): The name of the metric being visualized.
     """
     data = scores
-    labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SDXL 0.9 base", "SDXL 0.9 base+refiner", "SD 1.5", "SD 2.1"]
+    labels = ["SDXL 1.0 base", "SDXL 1.0 base+refiner", "SDXL 0.9 base", "SDXL 0.9 base+refiner", "SD 2.1", "SD 1.5"]
 
     plt.figure(figsize=(10, 6))
 
@@ -71,7 +71,7 @@ def generate_GMSD_heatmap(matrix_list, cmap='viridis'):
         for j in range(i, num_cols):
             triangular_matrix[i, j] = averaged_matrix[i, j]
 
-    labels = ["SDXL 1.0 b", "SDXL 1.0 b+r", "SDXL 0.9 b", "SDXL 0.9 b+r", "SD 1.5", "SD 2.1"]
+    labels = ["SDXL 1.0 b", "SDXL 1.0 b+r", "SDXL 0.9 b", "SDXL 0.9 b+r", "SD 2.1", "SD 1.5"]
 
     plt.figure(figsize=(10, 8))
     plt.imshow(triangular_matrix, cmap=cmap, origin='lower', aspect='auto')
