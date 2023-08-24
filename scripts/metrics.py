@@ -120,11 +120,11 @@ def calculate_teng(image):
 
 def calculate_gmsd(image_list):
     """
-    Calculate the Gradient Magnitude Structural Dissimilarity (GMSD) scores for a list of images.
+    Calculate the Gradient Magnitude Similarity Deviation (GMSD) scores for a list of images.
 
-    The GMSD score measures the structural dissimilarity between pairs of images based on gradient magnitudes.
+    The GMSD reflects the range of distortion severities in an image.
 
-    Low score = higher similarity of the structural features between two images; High score = less similarity.
+    Low score = higher the distortion range, and thus the higher the image perceptual quality; High score = less distortion, lower quality.
 
     https://arxiv.org/ftp/arxiv/papers/1308/1308.3052.pdf
 
