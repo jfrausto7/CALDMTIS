@@ -178,7 +178,7 @@ def normalize_metric(scores):
     normalized_scores = [(score - min_score) / (max_score - min_score) for score in scores]
     return normalized_scores
 
-def aggregate_scores(metrics, model_names):
+def aggregate_scores(metrics, model_names, scale_factor=100):
     """
     Aggregate metric scores for each model using weighted averaging.
 
@@ -216,7 +216,7 @@ def aggregate_scores(metrics, model_names):
             weighted_scores[i].append(weighted_score)
 
     # Calculate aggregated scores for each model
-    aggregated_scores = [np.mean(scores) for scores in weighted_scores]
+    aggregated_scores = [np.mean(scores) * scale_factor for scores in weighted_scores]
 
     # Print aggregated scores
     for i, model in enumerate(model_names):
