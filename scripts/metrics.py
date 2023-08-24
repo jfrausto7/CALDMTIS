@@ -192,7 +192,7 @@ def aggregate_scores(metrics, model_names, scale_factor=100):
     # Unpack the metrics tuple
     CLIP_scores, NIQE_scores, BRISQUE_scores, TENG_scores = metrics
 
-    # Define metric weights (adjust these based on your preferences)
+    # TODO: adjust metric weights
     metric_weights = [0.8, -0.01, -0.04, -0.15]  # negative weights = inverse relationship
 
     # Normalize each metric
