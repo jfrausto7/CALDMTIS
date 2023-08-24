@@ -1,6 +1,6 @@
 from config import API_KEY, IMAGE_DIR, ACCESS_TOKEN
 from metrics import calculate_clip_score, calculate_niqe, calculate_brisque, calculate_teng, calculate_gmsd, aggregate_scores
-from utils import generate_violinplot, generate_stripplot, generate_heatmap, generate_correlation_matrix
+from utils import generate_violinplot, generate_stripplot, generate_GMSD_heatmap, generate_correlation_heatmap
 from diffusers import DiffusionPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
 from torchmetrics.functional.multimodal import clip_score
 from functools import partial
@@ -130,6 +130,6 @@ generate_violinplot(BRISQUE_scores, "BRISQUE")
 generate_stripplot(BRISQUE_scores, "BRISQUE")
 generate_violinplot(TENG_scores, "TENG")
 generate_stripplot(TENG_scores, "TENG")
-generate_heatmap(GMSD_matrices)
-generate_correlation_matrix(metric_scores, model_names)
+generate_GMSD_heatmap(GMSD_matrices)
+generate_correlation_heatmap(metric_scores, model_names)
 aggregate_scores((CLIP_scores, NIQE_scores, BRISQUE_scores, TENG_scores), model_names)
