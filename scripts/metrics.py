@@ -73,7 +73,6 @@ def calculate_brisque(image):
 
     Low score = higher quality; High score = more distortion, noise, artifacts, etc.
 
-
     https://live.ece.utexas.edu/publications/2012/TIP%20BRISQUE.pdf
 
     Args:
@@ -95,7 +94,6 @@ def calculate_teng(image):
     present. Higher values suggest greater focus and sharper edges.
 
     Low score = few high-frequency details, less well-defined edges; High score = more high-frequency details/edges.
-
 
     https://arxiv.org/pdf/1903.02695.pdf
 
@@ -125,6 +123,8 @@ def calculate_gmsd(image_list):
     Calculate the Gradient Magnitude Structural Dissimilarity (GMSD) scores for a list of images.
 
     The GMSD score measures the structural dissimilarity between pairs of images based on gradient magnitudes.
+
+    Low score = higher similarity of the structural features between two images; High score = less similarity.
 
     https://arxiv.org/ftp/arxiv/papers/1308/1308.3052.pdf
 
