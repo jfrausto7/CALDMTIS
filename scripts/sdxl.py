@@ -59,7 +59,7 @@ pipe1_5 = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-
 models.append(pipe1_5)
 pipe2_1 = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1", torch_dtype=torch.float16)
 models.append(pipe2_1)
-pipe2_1.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+pipe2_1.scheduler = DPMSolverMultistepScheduler.from_config(pipe2_1.scheduler.config)
 
 # Enable model CPU offload for all models
 for model in models:
