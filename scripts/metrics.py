@@ -61,7 +61,7 @@ def calculate_niqe(image):
     overall_std_std = np.std(std_map)
 
     # Calculate simplified NIQE score
-    niqe_score = overall_mean_std / overall_std_mean + overall_std_std / overall_mean_mean
+    niqe_score = (overall_mean_std + 1e-6) / (overall_std_mean + 1e-6) + (overall_std_std + 1e-6) / (overall_mean_mean + 1e-6)
 
     return niqe_score
 
