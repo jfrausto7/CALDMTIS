@@ -14,7 +14,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # The model used is "openai/clip-vit-base-patch16"
 clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
 
-# Models names
+# Model names
 model_names = ["base1_0", "refined1_0", "base0_9", "refined0_9", "two_one", "one_five"]
 
 # Initialize lists for storing scores and prompts
