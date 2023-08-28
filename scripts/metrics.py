@@ -52,6 +52,7 @@ def calculate_niqe(image):
     mean_map = cv2.boxFilter(image, -1, (window_size, window_size))
     squared_diff_map = (image - mean_map)**2
     var_map = cv2.boxFilter(squared_diff_map, -1, (window_size, window_size))
+    var_map = np.clip(var_map, 0, None)  # Clip negative values to 0 to prevent NaN
     std_map = np.sqrt(var_map)
 
     # Calculate overall mean and standard deviation of local means and standard deviations
