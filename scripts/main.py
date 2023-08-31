@@ -68,13 +68,14 @@ for model in models:
 for i in range(5):
     # Configure PaLM; generate prompts & image names
     palm.configure(api_key=API_KEY)
-    prompt = palm.generate_text(prompt="In less than 77 words, craft a thought-provoking and imaginative prompt that challenges a text-to-image diffusion model to create captivating and evocative visuals. Explore an array of themes, emotions, and scenes to inspire a diverse range of images that resonate with creativity and intrigue. Embrace a multitude of subjects, contexts, and concepts to infuse the images with a rich tapestry of diversity. Ensure that if the prompt has a subject, it is a uniquely described one that isn't redundant or repetitive. Do not use any stylistic formatting like asterisks in this prompt.")
+    prompt = palm.generate_text(prompt="In less than 77 words, craft a thought-provoking and imaginative prompt that challenges a text-to-image diffusion model to create captivating and evocative visuals. Explore an array of themes, emotions, and scenes to inspire a diverse range of images that resonate with creativity and intrigue. Embrace a multitude of subjects, contexts, and concepts to infuse the images with a rich tapestry of diversity. Ensure that if the prompt has a subject, it is a uniquely described one that isn't redundant or repetitive. Stay away from the subjects of space, lone astronauts, lone wolves, and children. Do not use any stylistic formatting like asterisks in this prompt.")
     print("PROMPT: " + prompt.result)
     imageName = palm.generate_text(prompt="Given the following text-to-image prompt, come up with a short one-word name for its associated image file: " + prompt.result)
     path = os.path.join(IMAGE_DIR, imageName.result)
     while os.path.exists(path):
         imageName = palm.generate_text(prompt=f"Given the following text-to-image prompt, come up with a short one-word name for its associated image file. Do not use {imageName}. " + prompt.result)
         path = os.path.join(IMAGE_DIR, imageName.result)
+        if imageName is not None:
     print("FILE NAME: " + imageName.result)
     prompt = prompt.result
     imageName = imageName.result
