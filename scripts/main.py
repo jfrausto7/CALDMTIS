@@ -74,8 +74,8 @@ for i in range(5):
     path = os.path.join(IMAGE_DIR, imageName.result)
     while os.path.exists(path):
         imageName = palm.generate_text(prompt=f"Given the following text-to-image prompt, come up with a short one-word name for its associated image file. Do not use {imageName}. " + prompt.result)
-        path = os.path.join(IMAGE_DIR, imageName.result)
         if imageName is not None:
+            path = os.path.join(IMAGE_DIR, imageName.result)
     print("FILE NAME: " + imageName.result)
     prompt = prompt.result
     imageName = imageName.result
